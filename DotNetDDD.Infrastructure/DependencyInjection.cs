@@ -10,6 +10,7 @@ using DotNetDDD.Application.Common.Interfaces.Persistence;
 using DotNetDDD.Infrastructure.Persistence;
 using DotNetDDD.Infrastructure.Authentication;
 using DotNetDDD.Application.Common.Interfaces.Authentication;
+using Microsoft.EntityFrameworkCore;
 
 namespace DotNetDDD.Infrastructure;
 
@@ -21,16 +22,17 @@ public static class DependencyInjection
     {
         services
             .AddAuth(configuration)
-            .AddPersistance();
+            .AddPersistance(configuration);
 
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
 
         return services;
     }
     public static IServiceCollection AddPersistance(
-       this IServiceCollection services)
+       this IServiceCollection services, ConfigurationManager configuration)
     {
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddDbContext<DotNetDDDDbContext>();
 
         return services;
     }
