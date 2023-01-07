@@ -1,8 +1,10 @@
+using System.Security.Claims;
 using DotNetDDD.Api.Common.Http;
 using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace DotNetDDD.Api.Controllers;
 
@@ -10,6 +12,10 @@ namespace DotNetDDD.Api.Controllers;
 [Authorize]
 public class ApiController : ControllerBase
 {
+    protected string? GetUserIdFromToken()
+    {
+        return HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+    }
     protected IActionResult Problem(List<Error> errors)
     {
         if (errors.Count == 0)

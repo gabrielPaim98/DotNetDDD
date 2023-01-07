@@ -1,6 +1,7 @@
 using DotNetDDD.Application.Authentication.Commands.Register;
 using DotNetDDD.Application.Authentication.Common;
 using DotNetDDD.Application.Authentication.Queries.Login;
+using DotNetDDD.Application.Authentication.Queries.RefreshToken;
 using DotNetDDD.Contracts.Authentication;
 using ErrorOr;
 using MapsterMapper;
@@ -11,7 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace DotNetDDD.Api.Controllers;
 
 [Route("auth")]
-[AllowAnonymous]
 public class AuthenticationController : ApiController
 {
     private readonly ISender _mediator;
@@ -23,7 +23,7 @@ public class AuthenticationController : ApiController
         _mapper = mapper;
     }
 
-    [HttpPost("register")]
+    [HttpPost("register"), AllowAnonymous]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
         var command = _mapper.Map<RegisterCommand>(request);
@@ -36,7 +36,7 @@ public class AuthenticationController : ApiController
         );
     }
 
-    [HttpPost("login")]
+    [HttpPost("login"), AllowAnonymous]
     public async Task<IActionResult> Login(LoginRequest request)
     {
         var query = _mapper.Map<LoginQuery>(request);
@@ -49,4 +49,16 @@ public class AuthenticationController : ApiController
                 );
     }
 
+    [HttpPost("refreshToken")]
+    public async Task<IActionResult> RefreshToken()
+    {
+        var query = new RefreshTokenQuery(GetUserIdFromToken());
+
+        ErrorOr<AuthenticationResult> authResult = await _mediator.Send(query);
+
+        return authResult.Match(
+                    authResult => Ok(_mapper.Map<AuthenticationResponse>(authResult)),
+                    errors => Problem(errors)
+                );
+    }
 }

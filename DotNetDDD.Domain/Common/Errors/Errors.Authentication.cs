@@ -9,5 +9,10 @@ public static partial class Errors
             code: "Auth.InvalidCredentials",
             description: "Invalid credentials"
         );
+
+        public static Error NotAuthenticated => Error.Validation(
+            code: "Auth.NotAuthenticated",
+            description: "User not authenticated"
+        );
     }
 }
